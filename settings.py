@@ -4,7 +4,6 @@ try:
     import dialogs
     IOS = True
 except ImportError as e:
-    print(e)
     IOS = False
     import getpass
 
