@@ -83,7 +83,9 @@ class BaseSettings:
         self.data['token'] = token
 
     def set_access_token(self, access_token):
-        self.data['token']['access'] = access_token
+        token = self.data['token']
+        token['access'] = access_token
+        self.data['token'] = token
 
     def fetch_data_from_user(self):
         done = False
