@@ -11,7 +11,7 @@ import os
 import json
 import requests
 
-from api import JWTAuth
+from .api import JWTAuth
 from collections import UserDict
 
 
@@ -52,12 +52,13 @@ class PersistentDict(UserDict):
 
 
 class BaseSettings:
-    def __init__(self, ios=IOS, filename='.settings.json'):
-        self.ios = ios
+    def __init__(self, client, filename='../.settings.json'):
+        self.client = client
+        self.filename = filename
         self.data = PersistentDict(filename)
         if not self.data.is_valid:
-            initialdata = self.get_data_from_user()
-            self.data  = PersistentDict(filename, initialdata=initialdata)
+            self.fetch_data_from_user()
+
 
     @property
     def base_url(self):
@@ -89,15 +90,17 @@ class BaseSettings:
     def set_access_token(self, access_token):
         self.data['token']['access'] = access_token
 
-    def get_data_from_user(self):
+    def fetch_data_from_user(self):
         done = False
         while not done:
             username, password, base_url = self.get_user_input()
+            auth = self.client.get_auth(self, base_url)
             try:
-                auth_token = JWTAuth(None).get_auth_token_plain(
+                auth_token = auth.get_auth_token_plain(
                     base_url, username, password)
                 done = True
             except requests.exceptions.HTTPError as e:
+                print(e)
                 print('some input was not correct, try again..')
         data = {
             'base_url': base_url,
@@ -105,7 +108,7 @@ class BaseSettings:
             'password': password,
             'token': auth_token
         }
-        return data
+        self.data  = PersistentDict(self.filename, initialdata=data)
 
 
 class PythonSettings(BaseSettings):
@@ -129,7 +132,5 @@ class IosSettings(BaseSettings):
             'value': self.data.get('base_url', '')
         }]
         data = dialogs.form_dialog(title='Settings', fields=fields)
+        print(data)
         return data['username'], data['password'], data['base_url']
-
-
-settings = IosSettings(ios=True) if IOS else PythonSettings(ios=False)

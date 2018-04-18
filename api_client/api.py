@@ -8,9 +8,12 @@ class JWTAuth(requests.auth.AuthBase):
         self.settings = settings
 
     def get_auth_token_plain(self, base_url, username, password):
-        obtain_url = urljoin(base_url, 'api/auth/token/obtain/')
+        obtain_url = urljoin(base_url, self.settings.obtain_endpoint)
         payload = {'username': username, 'password': password}
+        print(obtain_url)
         r = requests.post(obtain_url, json=payload)
+        print(r.status_code)
+        print(r.json())
         r.raise_for_status()
         return r.json()
 
@@ -22,7 +25,7 @@ class JWTAuth(requests.auth.AuthBase):
     def refresh_access_token(self):
         token = self.settings.token
         base_url = self.settings.base_url
-        refresh_url = urljoin(base_url, 'api/auth/token/refresh/')
+        refresh_url = urljoin(base_url, self.settings.refresh_endpoint)
         r = requests.post(refresh_url, json=token)
         r.raise_for_status()
         self.settings.set_access_token(r.json()['access'])
