@@ -19,7 +19,8 @@ class JWTAuth(requests.auth.AuthBase):
 
     def get_auth_token(self):
         token = self.get_auth_token_plain(
-            self.settings.base_url, self.settings.username, self.settings.password)
+            self.settings.base_url, self.settings.username,
+            self.settings.password)
         self.settings.set_token(token)
 
     def refresh_access_token(self):

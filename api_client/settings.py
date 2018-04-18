@@ -1,17 +1,13 @@
 try:
-    import ui
-    import appex
     import dialogs
     IOS = True
 except ImportError as e:
     IOS = False
     import getpass
 
-import os
 import json
 import requests
 
-from .api import JWTAuth
 from collections import UserDict
 
 
@@ -58,7 +54,6 @@ class BaseSettings:
         self.data = PersistentDict(filename)
         if not self.data.is_valid:
             self.fetch_data_from_user()
-
 
     @property
     def base_url(self):
@@ -108,7 +103,7 @@ class BaseSettings:
             'password': password,
             'token': auth_token
         }
-        self.data  = PersistentDict(self.filename, initialdata=data)
+        self.data = PersistentDict(self.filename, initialdata=data)
 
 
 class PythonSettings(BaseSettings):

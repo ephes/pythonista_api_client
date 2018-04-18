@@ -62,7 +62,7 @@ class Bookmark(BaseClient):
         bookmark_list = self.list_bookmarks()
         # print(bookmark_list)
         items = [i['url']['the_url'] for i in bookmark_list['results']]
-        data_source= ui.ListDataSource(items=items)
+        data_source = ui.ListDataSource(items=items)
         btv = ui.TableView()
         btv.data_source = data_source
         btv.tableview_title_for_header = lambda x, y, z: 'Bookmark List'
@@ -70,11 +70,11 @@ class Bookmark(BaseClient):
 
     def python_main(self):
         print('running in normal python')
-        #print(settings.data)
+        # print(settings.data)
         print(self.list_bookmarks())
-        #data = self.add_bookmark('http://example.org', title='foobar').json()
-        #print(data)
-        #print(data['api_url'].replace('api/v1/', ''))
+        # data = self.add_bookmark('http://example.org', title='foobar').json()
+        # print(data)
+        # print(data['api_url'].replace('api/v1/', ''))
 
     def pythonista_main(self):
         print('Running in Pythonista app, using test data...\n')
@@ -99,4 +99,3 @@ class Bookmark(BaseClient):
             webbrowser.open(detail_url)
         else:
             print('No input URL found.')
-
