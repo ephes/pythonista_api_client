@@ -5,10 +5,16 @@ except ImportError as e:
     IOS = False
     import getpass
 
+import os
 import json
 import requests
 
 from collections import UserDict
+
+
+CONFIG_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    '.settings.json')
 
 
 class PersistentDict(UserDict):
@@ -48,7 +54,7 @@ class PersistentDict(UserDict):
 
 
 class BaseSettings:
-    def __init__(self, client, filename='../.settings.json'):
+    def __init__(self, client, filename=CONFIG_PATH):
         self.client = client
         self.filename = filename
         self.data = PersistentDict(filename)
