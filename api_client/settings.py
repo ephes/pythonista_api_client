@@ -52,7 +52,6 @@ class PersistentDict(UserDict):
         return valid
 
     def __setitem__(self, key, item):
-        print(f'setitem? {key} {item}')
         super().__setitem__(key, item)
         self.file_sync()
 
@@ -61,8 +60,6 @@ class BaseSettings:
     data = None
 
     def __new__(cls, config_path=None):
-        print(config_path)
-        print(cls.data is None)
         if cls.data is None:
             if config_path is not None:
                 cls.data = PersistentDict(config_path)
@@ -89,10 +86,7 @@ class BaseSettings:
     def get_credentials(self, password):
         obtain_url = urljoin(self.base_url, self.obtain_endpoint)
         payload = {'username': self.username, 'password': password}
-        print(obtain_url)
         r = requests.post(obtain_url, json=payload)
-        print(r.status_code)
-        print(r.json())
         r.raise_for_status()
         return r.json()
 
