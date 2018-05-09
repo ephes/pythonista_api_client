@@ -15,6 +15,8 @@ class BaseClient:
         self.settings = Settings()
         if not hasattr(self.settings, 'obtain_endpoint'):
             self.settings.obtain_endpoint = self.obtain_endpoint
+        if auth_method == 'jwt':
+            self.settings.refresh_endpoint = self.refresh_jwt_endpoint
         self.settings.check_is_complete()
         self.base_url = self.settings.base_url
         self.auth = JWTAuth() if auth_method == 'jwt' else TokenAuth()
