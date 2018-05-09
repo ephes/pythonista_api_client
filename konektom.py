@@ -9,8 +9,8 @@ except ImportError:
 
 from urllib.parse import urljoin
 
-from api_client import api as requests
-from api_client.client import BaseClient
+from api_client import requests
+from api_client import BaseClient
 
 
 class Bookmark(BaseClient):
