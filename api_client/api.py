@@ -21,28 +21,27 @@ class JWTAuth(BaseApiAuth):
         self.settings.set_token(token)
 
     def refresh_access_token(self):
-        token = self.settings.token
         base_url = self.settings.base_url
         refresh_url = urljoin(base_url, self.settings.refresh_endpoint)
-        r = requests.post(refresh_url, json=token)
+        r = requests.post(refresh_url, json=self.settings.credentials)
         r.raise_for_status()
-        self.settings.set_access_token(r.json()['access'])
+        credentials = self.settings.credentials
+        credentials['access'] = r.json()['access']
+        self.settings.credentials = credentials
 
     def handle_auth_exception(self, e):
         print('access token expired fetching new one')
-        self.refresh_access_token()
-
-#            print('access token expired fetching new one')
-#            auth.refresh_access_token()
-#            try:
-#                return make_request()
-#            except requests.exceptions.HTTPError as e:
-#                print('refresh token expired fetching new one')
-#                auth.get_auth_token()
-#                return make_request()
+        try:
+            self.refresh_access_token()
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 401:
+                print('fetchting new access token failed, fall back to user..')
+                self.settings.fetch_data_from_user()
+            else:
+                raise e
 
     def __call__(self, r):
-        r.headers['Authorization'] = f'Bearer {self.settings.access_token}'
+        r.headers['Authorization'] = f'Bearer {self.settings.credentials["access"]}'
         return r
 
 
