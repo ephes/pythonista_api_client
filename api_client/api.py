@@ -9,9 +9,6 @@ class BaseApiAuth(requests.auth.AuthBase):
     def __init__(self):
         self.settings = Settings()
 
-    def parse_exception(self, e):
-        pass
-
 
 class JWTAuth(BaseApiAuth):
     def get_auth_token(self):
@@ -41,7 +38,8 @@ class JWTAuth(BaseApiAuth):
                 raise e
 
     def __call__(self, r):
-        r.headers['Authorization'] = f'Bearer {self.settings.credentials["access"]}'
+        r.headers['Authorization'] = \
+            f'Bearer {self.settings.credentials["access"]}'
         return r
 
 
