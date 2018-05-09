@@ -13,7 +13,8 @@ class BaseClient:
     def __init__(self, auth_method='token'):
         self.auth_method = auth_method
         self.settings = Settings()
-        self.settings.obtain_endpoint = self.obtain_endpoint
+        if not hasattr(self.settings, 'obtain_endpoint'):
+            self.settings.obtain_endpoint = self.obtain_endpoint
         self.settings.check_is_complete()
         self.base_url = self.settings.base_url
         self.auth = JWTAuth() if auth_method == 'jwt' else TokenAuth()
