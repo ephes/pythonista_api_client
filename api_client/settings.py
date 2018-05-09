@@ -10,6 +10,7 @@ import json
 import requests
 
 from collections import UserDict
+from urllib.parse import urljoin
 
 
 CONFIG_PATH = os.path.join(
@@ -18,12 +19,13 @@ CONFIG_PATH = os.path.join(
 
 
 class PersistentDict(UserDict):
+    required_keys = ['username', 'base_url', 'credentials', 'obtain_endpoint']
+
     def __init__(self, filename, initialdata=None):
         self.filename = filename
         if initialdata is not None:
             self.write_data_to_file(initialdata)
-        initialdata = self.get_data_from_file()
-        super().__init__(initialdata)
+        self.data = self.get_data_from_file()
 
     def get_data_from_file(self):
         try:
@@ -33,6 +35,7 @@ class PersistentDict(UserDict):
             return {}
 
     def write_data_to_file(self, data):
+        print(f'write data to file: {self.filename}')
         with open(self.filename, 'w') as f:
             json.dump(data, f)
 
@@ -40,10 +43,14 @@ class PersistentDict(UserDict):
         self.write_data_to_file(self.data)
         self.data = self.get_data_from_file()
 
+    def overwrite(self, data):
+        self.data = data
+        self.file_sync()
+
     @property
-    def is_valid(self):
+    def is_complete(self):
         valid = True
-        for key in ['username', 'password', 'base_url', 'token']:
+        for key in self.required_keys:
             if key not in self.data:
                 valid = False
         return valid
@@ -54,67 +61,61 @@ class PersistentDict(UserDict):
 
 
 class BaseSettings:
-    def __init__(self, client, filename=CONFIG_PATH):
-        self.client = client
-        self.filename = filename
-        self.data = PersistentDict(filename)
-        if not self.data.is_valid:
+    data = None
+
+    def __new__(cls, config_path=None):
+        print(config_path)
+        print(cls.data is None)
+        if cls.data is None:
+            if config_path is not None:
+                cls.data = PersistentDict(config_path)
+            else:
+                cls.data = PersistentDict(CONFIG_PATH)
+        return super().__new__(cls)
+
+    def check_is_complete(self):
+        if not self.data.is_complete:
             self.fetch_data_from_user()
 
-    @property
-    def base_url(self):
-        return self.data['base_url']
+    def __getattr__(self, name):
+        try:
+            return self.data[name]
+        except KeyError as e:
+            raise AttributeError(f'BaseSettings.data has no key "{name}"')
 
-    @property
-    def token(self):
-        return self.data['token']
+    def __setattr__(self, name, value):
+        print(f'setattr: {name} {value}')
+        if not hasattr(self, name):
+            self.data[name] = value
+        else:
+            super().__setattr__(name, value)
 
-    @property
-    def access_token(self):
-        return self.token['access']
-
-    @property
-    def refresh_token(self):
-        return self.token['refresh']
-
-    @property
-    def username(self):
-        return self.data['username']
-
-    @property
-    def password(self):
-        return self.data['password']
-
-    def set_token(self, token):
-        self.data['token'] = token
-
-    def set_access_token(self, access_token):
-        token = self.data['token']
-        token['access'] = access_token
-        self.data['token'] = token
+    def get_credentials(self, password):
+        obtain_url = urljoin(self.base_url, self.obtain_endpoint)
+        payload = {'username': self.username, 'password': password}
+        print(obtain_url)
+        r = requests.post(obtain_url, json=payload)
+        print(r.status_code)
+        print(r.json())
+        r.raise_for_status()
+        return r.json()
 
     def fetch_data_from_user(self):
         done = False
         while not done:
-            username, password, base_url = self.get_user_input()
-            auth = self.client.get_auth(self, base_url)
+            self.username, password, self.base_url = self.get_user_input()
             try:
-                auth_token = auth.get_auth_token_plain(
-                    base_url, username, password)
+                credentials = self.get_credentials(password)
                 done = True
             except requests.exceptions.HTTPError as e:
                 print(e)
                 print('some input was not correct, try again..')
-        data = {
-            'base_url': base_url,
-            'username': username,
-            'password': password,
-            'token': auth_token
-        }
-        self.data = PersistentDict(self.filename, initialdata=data)
+        self.credentials = credentials
 
 
 class PythonSettings(BaseSettings):
+    ios = False
+
     def get_user_input(self):
         username = input('Username: ')
         password = getpass.getpass('Password: ')
@@ -123,6 +124,8 @@ class PythonSettings(BaseSettings):
 
 
 class IosSettings(BaseSettings):
+    ios = True
+
     def get_user_input(self):
         fields = [{
             'key': 'username', 'type': 'text', 'title': 'Username',
@@ -137,3 +140,9 @@ class IosSettings(BaseSettings):
         data = dialogs.form_dialog(title='Settings', fields=fields)
         print(data)
         return data['username'], data['password'], data['base_url']
+
+
+if IOS:
+    Settings = IosSettings
+else:
+    Settings = PythonSettings

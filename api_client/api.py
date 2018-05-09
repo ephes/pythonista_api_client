@@ -2,21 +2,18 @@ import requests
 
 from urllib.parse import urljoin
 
+from .settings import Settings
 
-class JWTAuth(requests.auth.AuthBase):
-    def __init__(self, settings):
-        self.settings = settings
 
-    def get_auth_token_plain(self, base_url, username, password):
-        obtain_url = urljoin(base_url, self.settings.obtain_endpoint)
-        payload = {'username': username, 'password': password}
-        print(obtain_url)
-        r = requests.post(obtain_url, json=payload)
-        print(r.status_code)
-        print(r.json())
-        r.raise_for_status()
-        return r.json()
+class BaseApiAuth(requests.auth.AuthBase):
+    def __init__(self):
+        self.settings = Settings()
 
+    def parse_exception(self, e):
+        pass
+
+
+class JWTAuth(BaseApiAuth):
     def get_auth_token(self):
         token = self.get_auth_token_plain(
             self.settings.base_url, self.settings.username,
@@ -31,9 +28,34 @@ class JWTAuth(requests.auth.AuthBase):
         r.raise_for_status()
         self.settings.set_access_token(r.json()['access'])
 
+    def handle_auth_exception(self, e):
+        print('access token expired fetching new one')
+        self.refresh_access_token()
+
+#            print('access token expired fetching new one')
+#            auth.refresh_access_token()
+#            try:
+#                return make_request()
+#            except requests.exceptions.HTTPError as e:
+#                print('refresh token expired fetching new one')
+#                auth.get_auth_token()
+#                return make_request()
+
     def __call__(self, r):
         r.headers['Authorization'] = f'Bearer {self.settings.access_token}'
         return r
+
+
+class TokenAuth(BaseApiAuth):
+    def __call__(self, r):
+        token = self.settings.credentials['token']
+        r.headers['Authorization'] = f'Token {token}'
+        return r
+
+    def handle_auth_exception(self, e):
+        print('token invalid fetching new one')
+        self.settings.fetch_data_from_user()
+        print(e)
 
 
 def request(method, url, **kwargs):
@@ -47,14 +69,11 @@ def request(method, url, **kwargs):
         try:
             return make_request()
         except requests.exceptions.HTTPError as e:
-            print('access token expired fetching new one')
-            auth.refresh_access_token()
-            try:
+            if e.response.status_code == 401:
+                auth.handle_auth_exception(e)
                 return make_request()
-            except requests.exceptions.HTTPError as e:
-                print('refresh token expired fetching new one')
-                auth.get_auth_token()
-                return make_request()
+            else:
+                raise e
 
 
 def get(url, params=None, **kwargs):

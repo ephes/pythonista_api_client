@@ -1,8 +1,8 @@
-from api_client import bookmark
+from konektom import Bookmark
 
 
 def main():
-    bookmark.main()
+    Bookmark().main()
 
 
 if __name__ == '__main__':

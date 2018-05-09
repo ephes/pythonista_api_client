@@ -9,42 +9,16 @@ except ImportError:
 
 from urllib.parse import urljoin
 
-from . import api as requests
-
-from .api import JWTAuth
-from .settings import IosSettings
-from .settings import PythonSettings
-
-
-class BaseClient:
-    def main(self):
-        if not self.settings.ios:
-            self.python_main()
-        else:
-            if not appex.is_running_extension():
-                self.pythonista_main()
-            else:
-                self.appex_main()
-                appex.finish()
+from api_client import api as requests
+from api_client.client import BaseClient
 
 
 class Bookmark(BaseClient):
-    obtain_endpoint = 'api/auth/token/obtain/'
-    refresh_endpoint = 'api/auth/token/refresh/'
+    obtain_jwt_endpoint = 'api/auth/token/obtain/'
+    refresh_jwt_endpoint = 'api/auth/token/refresh/'
+
+    obtain_token_endpoint = '/api/api-token-auth/'
     bookmarks_endpoint = 'api/v1/bookmarks/'
-
-    def __init__(self):
-        self.settings = IosSettings(self) if IOS else PythonSettings(self)
-        self.settings.ios = IOS
-        self.base_url = self.settings.base_url
-        self.auth = self.get_auth(self.settings, self.base_url)
-
-    def get_auth(self, settings, base_url):
-        settings.obtain_endpoint = urljoin(
-            base_url, self.obtain_endpoint)
-        settings.refresh_endpoint = urljoin(
-            base_url, self.refresh_endpoint)
-        return JWTAuth(settings)
 
     def add_bookmark(self, url, title=''):
         add_url = urljoin(self.base_url, self.bookmarks_endpoint)
