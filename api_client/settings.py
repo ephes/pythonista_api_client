@@ -43,10 +43,6 @@ class PersistentDict(UserDict):
         self.write_data_to_file(self.data)
         self.data = self.get_data_from_file()
 
-    def overwrite(self, data):
-        self.data = data
-        self.file_sync()
-
     @property
     def is_complete(self):
         valid = True
@@ -56,6 +52,7 @@ class PersistentDict(UserDict):
         return valid
 
     def __setitem__(self, key, item):
+        print(f'setitem? {key} {item}')
         super().__setitem__(key, item)
         self.file_sync()
 
@@ -84,8 +81,7 @@ class BaseSettings:
             raise AttributeError(f'BaseSettings.data has no key "{name}"')
 
     def __setattr__(self, name, value):
-        print(f'setattr: {name} {value}')
-        if not hasattr(self, name):
+        if name in self.data or not hasattr(self, name):
             self.data[name] = value
         else:
             super().__setattr__(name, value)
