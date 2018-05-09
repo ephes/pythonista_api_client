@@ -3,9 +3,8 @@ try:
     import appex
     import dialogs
     import webbrowser
-    IOS = True
 except ImportError:
-    IOS = False
+    pass
 
 from urllib.parse import urljoin
 
