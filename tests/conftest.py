@@ -102,3 +102,8 @@ def client():
 @pytest.fixture
 def not_auth_response():
     return MockedResponse(401, 'authentication error')
+
+
+@pytest.fixture
+def server_error_response():
+    return MockedResponse(500, 'server error')

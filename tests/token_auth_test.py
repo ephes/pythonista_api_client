@@ -34,3 +34,19 @@ def test_token_auth_wrong_token_user_input(
         with pytest.raises(requests.exceptions.HTTPError):
             client.list_resource()
     assert settings.fetch_data_from_user_called
+
+
+def test_server_error(
+        client, settings, mocked_token_auth, server_error_response):
+    """Assert that on server error the handle_auth_exception method
+       of TokenAuth does not get called."""
+    client.settings = settings
+    client.auth = mocked_token_auth
+    assert not client.auth.handle_auth_exception_called
+
+    args = [requests.Session, 'request']
+    kwargs = {'return_value': server_error_response}
+    with patch.object(*args, **kwargs):
+        with pytest.raises(requests.exceptions.HTTPError):
+            client.list_resource()
+    assert not client.auth.handle_auth_exception_called

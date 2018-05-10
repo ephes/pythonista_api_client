@@ -18,7 +18,7 @@ class JWTAuth(BaseApiAuth):
     that fails, too, ask user for new username, password,
     base_url settings.
     """
-        
+
     def refresh_access_token(self):
         base_url = self.settings.base_url
         refresh_url = urljoin(base_url, self.settings.refresh_endpoint)
