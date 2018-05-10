@@ -1,3 +1,5 @@
+dist
+build
 .cache
 .settings.json
 tests/.test.settings.json
