@@ -15,7 +15,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='pythonista_api_client',
-    version='0.1.3',
+    version='0.1.4',
     description='Making requests to rest apis in pythonista.',
     long_description=long_description,
     long_description_content_type='text/markdown',
