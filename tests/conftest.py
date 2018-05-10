@@ -4,10 +4,10 @@ import requests
 
 from urllib.parse import urljoin
 
-from ..client import BaseClient
-from ..settings import BaseSettings
+from api_client import BaseClient
+from api_client import BaseSettings
 
-from .. import api
+from api_client import api
 
 
 class MockedSettings(BaseSettings):

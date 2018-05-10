@@ -1,4 +1,4 @@
 .cache
 .settings.json
-api_client/tests/.test.settings.json
+tests/.test.settings.json
 __pycache__

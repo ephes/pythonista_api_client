@@ -12,4 +12,4 @@ def test_settings_assign_write(settings):
     settings.foo = 'bar'
     with open(config_path) as f:
         data = json.load(f)
-    assert data == {'foo': 'bar'}
+    assert data['foo'] == 'bar'
