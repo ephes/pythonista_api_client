@@ -11,6 +11,14 @@ class BaseApiAuth(requests.auth.AuthBase):
 
 
 class JWTAuth(BaseApiAuth):
+    """
+    JSON Web Token authentication. If an authentication
+    exception occurs, try to fetch a new access token
+    using the refresh token and the refresh endpoint. If
+    that fails, too, ask user for new username, password,
+    base_url settings.
+    """
+        
     def refresh_access_token(self):
         base_url = self.settings.base_url
         refresh_url = urljoin(base_url, self.settings.refresh_endpoint)
@@ -38,6 +46,10 @@ class JWTAuth(BaseApiAuth):
 
 
 class TokenAuth(BaseApiAuth):
+    """
+    Token authentication. If an authentication exception occurs,
+    ask user for new username, password, base_url settings.
+    """
     def __call__(self, r):
         token = self.settings.credentials['token']
         r.headers['Authorization'] = f'Token {token}'

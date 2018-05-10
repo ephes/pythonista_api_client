@@ -19,6 +19,9 @@ CONFIG_PATH = os.path.join(
 
 
 class PersistentDict(UserDict):
+    """
+    JSON based persistance for settings.
+    """
     required_keys = ['username', 'base_url', 'credentials', 'obtain_endpoint']
 
     def __init__(self, filename, initialdata=None):
@@ -57,9 +60,16 @@ class PersistentDict(UserDict):
 
 
 class BaseSettings:
+    """
+    All settings instances share the same data dict. Therefore
+    it's not necessary to pass settings instances around all the
+    time.
+    """
     data = None
 
     def __new__(cls, config_path=None):
+        """Allow to configure the path of the config file used by
+        the persistant data dict. Useful for tests."""
         if cls.data is None:
             if config_path is not None:
                 cls.data = PersistentDict(config_path)
@@ -72,18 +82,25 @@ class BaseSettings:
             self.fetch_data_from_user()
 
     def __getattr__(self, name):
+        """Raise AttributeError to make hasattr work inside of __setattr__."""
         try:
             return self.data[name]
         except KeyError as e:
             raise AttributeError(f'BaseSettings.data has no key "{name}"')
 
     def __setattr__(self, name, value):
+        """Use data dict if already managed by it or new, use normal
+        attribute access else.
+        """
         if name in self.data or not hasattr(self, name):
             self.data[name] = value
         else:
             super().__setattr__(name, value)
 
     def get_credentials(self, password):
+        """Obtain credentials access/refresh-token combination or
+        plain token from rest api via obtain_url and post request.
+        """
         obtain_url = urljoin(self.base_url, self.obtain_endpoint)
         payload = {'username': self.username, 'password': password}
         r = requests.post(obtain_url, json=payload)
