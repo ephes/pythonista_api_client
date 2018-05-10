@@ -20,7 +20,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/ephes/pythonista_api_client',
-    author='Jochen Wersdörfer',
+    author='Jochen Wersdoerfer',
     author_email='jochen-pythonista@wersdoerfer.de',
     classifiers=[
         'Development Status :: 3 - Alpha',
