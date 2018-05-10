@@ -52,7 +52,6 @@ class TokenAuth(BaseApiAuth):
     def handle_auth_exception(self, e):
         print('token invalid fetching new one')
         self.settings.fetch_data_from_user()
-        print(e)
 
 
 def request(method, url, **kwargs):
