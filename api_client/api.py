@@ -11,12 +11,6 @@ class BaseApiAuth(requests.auth.AuthBase):
 
 
 class JWTAuth(BaseApiAuth):
-    def get_auth_token(self):
-        token = self.get_auth_token_plain(
-            self.settings.base_url, self.settings.username,
-            self.settings.password)
-        self.settings.set_token(token)
-
     def refresh_access_token(self):
         base_url = self.settings.base_url
         refresh_url = urljoin(base_url, self.settings.refresh_endpoint)
