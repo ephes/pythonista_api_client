@@ -1,4 +1,5 @@
 .cache
 .settings.json
 tests/.test.settings.json
+pythonista_api_client.egg-info/
 __pycache__
