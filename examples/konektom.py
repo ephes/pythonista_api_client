@@ -72,3 +72,10 @@ class Bookmark(BaseClient):
             webbrowser.open(detail_url)
         else:
             print('No input URL found.')
+
+
+def main():
+    Bookmark(auth_method='token').main()
+
+if __name__ == '__main__':
+    main()
