@@ -33,7 +33,7 @@ methods will be called:
 - appex_main (invoked via share sheet)
 
 ### Token Authentication
-If you wnat to use token authentication you need to set obtain_token_endpoint.
+If you want to use token authentication you need to set obtain_token_endpoint.
 
 ### JWT Authentication
 For JWT Authentication obtain_jwt_endpoint and refresh_jwt_endpoint have to
