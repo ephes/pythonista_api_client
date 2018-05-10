@@ -33,6 +33,13 @@ class MockedTokenAuth(api.TokenAuth):
         self.handle_auth_exception_called = True
 
 
+class MockedJWTAuth(api.JWTAuth):
+    refresh_access_token_called = False
+
+    def refresh_access_token(self):
+        self.refresh_access_token_called = True
+
+
 class MockedClient(BaseClient):
     obtain_jwtendpoint = 'api/auth/token/obtain/'
     refresh_jwt_endpoint = 'api/auth/token/refresh/'
@@ -77,6 +84,11 @@ def settings(settings_path):
 @pytest.fixture
 def mocked_token_auth():
     return MockedTokenAuth()
+
+
+@pytest.fixture
+def mocked_jwt_auth():
+    return MockedJWTAuth()
 
 
 @pytest.fixture
