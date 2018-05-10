@@ -14,13 +14,13 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='pythonista_api_client', 
+    name='pythonista_api_client',
     version='0.1.0',
     description='Making requests to rest apis in pythonista.',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/ephes/pythonista_api_client',
-    author='Jochen Wersdörfer', 
+    author='Jochen Wersdörfer',
     author_email='jochen-pythonista@wersdoerfer.de',
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -33,7 +33,7 @@ setup(
     keywords='api rest pythonista jwt token drf',  # Optional
     packages=find_packages(exclude=['examples', 'docs', 'tests']),
     install_requires=['requests'],
-    extras_require={ 
+    extras_require={
         'dev': ['pytest', 'flake8'],
     },
 )
